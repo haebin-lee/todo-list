@@ -3,6 +3,14 @@ import PageTemplate from './PageTemplate';
 import TodoInput from './TodoInput';
 import TodoList from './TodoList';
 
+import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
+
+import * as settingsActions from '../modules/settings';
+
+import TodoInputContainer from '../containers/TodoInputContainer';
+import TodoListContainer from '../containers/TodoListContainer';
+
 const initialTodos = new Array(500).fill(0).map(
   (foo, index) => ({id: index, text: `일정 ${index}`, done:false})
 );
@@ -73,15 +81,39 @@ class App extends Component {
   }
   render(){
     const {input, todos} = this.state;
-    
+    let {SettingsActions, settings} = this.props;
+    let type = settings.get('type');
     return(
-     <PageTemplate>
-       <TodoInput onChange={this.handleChange} onInsert={this.handleInsert} value={input}/>
-       <TodoList todos={todos} onToggle={this.handleToggle} onRemove={this.handleRemove}/>
-     </PageTemplate>
+      <div>
+        <button type="button" onClick={() => SettingsActions.setType(0)}>일반</button>
+        <button type="button" onClick={() => SettingsActions.setType(1)}>리덕스 적용</button>
+        {
+          type===0? ' 일반' : ' 리덕스'
+        }
+        {
+          type===0? 
+          <PageTemplate>
+            <TodoInput onChange={this.handleChange} onInsert={this.handleInsert} value={input}/>
+            <TodoList todos={todos} onToggle={this.handleToggle} onRemove={this.handleRemove}/>
+          </PageTemplate>:
+          <PageTemplate>
+            <TodoInputContainer/>
+            <TodoListContainer/>
+          </PageTemplate>
+        }
+      </div>
+    
 
     )
   }
 }
 
-export default App;
+
+export default connect(
+  (state) =>({
+    settings: state.settings,
+  }), 
+  (dispatch) => ({
+    SettingsActions: bindActionCreators(settingsActions, dispatch)
+  })
+)(App);

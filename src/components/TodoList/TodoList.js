@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
+import {Map, List} from 'immutable';
 import TodoItem from '../TodoItem';
+import { isImmutable } from '@babel/types';
 
 class TodoList extends Component {
 
@@ -8,8 +10,10 @@ class TodoList extends Component {
     }
     
     render() {
-        const {todos, onToggle, onRemove} = this.props;
-
+        let {todos, onToggle, onRemove} = this.props;
+        if(List.isList(todos)){
+            todos = todos.toJS()
+        }
         const todoList = todos.map(
             todo=>(
                 <TodoItem
